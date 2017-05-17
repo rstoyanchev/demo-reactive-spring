@@ -13,39 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package car.location;
+package car.request;
 
-
-import java.time.Duration;
-
-import car.Car;
-import car.Location;
-import reactor.core.publisher.Flux;
-
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class ServiceApp {
+public class RequestServiceApp {
 
 
 	public static void main(String[] args) {
-		SpringApplication.run(ServiceApp.class, args);
-	}
-
-	@Bean
-	public CommandLineRunner insertCars(CarRepository repository) {
-		return (String... args) -> {
-			LocationGenerator generator = new LocationGenerator(40.740900, -73.988000);
-			Flux<Car> cars = Flux.range(1, 100).map(i -> {
-				long id = i.longValue();
-				Location location = generator.location();
-				return new Car(id, location);
-			});
-			repository.saveAll(cars).blockLast(Duration.ofSeconds(5));
-		};
+		SpringApplication.run(RequestServiceApp.class, args);
 	}
 
 }

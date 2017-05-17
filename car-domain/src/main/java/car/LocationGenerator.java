@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package car.location;
+package car;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Random;
 
-import car.Location;
-
-
-class LocationGenerator {
+public class LocationGenerator {
 
 	private static final MathContext mathContext = new MathContext(8);
 
@@ -34,7 +31,7 @@ class LocationGenerator {
 	private final BigDecimal latitude;
 
 
-	LocationGenerator(double longitude, double latitude) {
+	public LocationGenerator(double longitude, double latitude) {
 		this.longitude = new BigDecimal(longitude, mathContext);
 		this.latitude = new BigDecimal(latitude, mathContext);
 	}

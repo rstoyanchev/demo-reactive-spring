@@ -33,25 +33,24 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RestController
 public class CarController {
 
-	private static Logger logger = LoggerFactory.getLogger(CarController.class);
+	private Logger logger = LoggerFactory.getLogger(CarController.class);
 
+	private WebClient carLocationClient = WebClient.create("http://localhost:8081");
 
-	private WebClient carLocationService = WebClient.create("http://localhost:8081");
-
-	private WebClient carRequestService = WebClient.create("http://localhost:8082");
+	private WebClient carRequestClient = WebClient.create("http://localhost:8082");
 
 
 	@PostMapping("/booking")
 	public Mono<ResponseEntity<Void>> book() {
 
-		return carLocationService.get()
+		return carLocationClient.get()
 				.uri("/cars")
 				.retrieve()
 				.bodyToFlux(Car.class)
 				.take(5)
 				.flatMap(car -> {
-					logger.info("Requesting to book: " + car);
-					return carRequestService.post()
+					logger.debug("Requesting " + car);
+					return carRequestClient.post()
 							.uri("/cars/" + car.getId() + "/booking")
 							.exchange()
 							.map(this::toBookingResponseEntity);

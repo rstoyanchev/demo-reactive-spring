@@ -18,13 +18,14 @@ package car.location;
 
 import car.Car;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 public class CarLocationController {
@@ -36,29 +37,15 @@ public class CarLocationController {
 		this.repository = repository;
 	}
 
-	/**
-	 * From a terminal:
-	 * <pre>
-	 * curl -v http://localhost:8081/cars --> JSON array
-	 * curl -v -H "Accept:application/stream+json" ... --> Stream of JSON objects
-	 * </pre>
-	 *
-	 * Access the data: .doOnNext, .map, etc<br>
-	 * Log backpressure: .log()<br>
-	 * Simulate delay: .delayElements<br>
-	 *
-	 * <p>Switch from Spring WebFlux to Spring MVC (pom.xml) and see impact on backpressure:
-	 * spring-boot-starter-webflux -> spring-boot-starter-web
-	 */
-
 	@GetMapping("/cars")
 	public Flux<Car> getCars() {
 		return this.repository.findAll().log();
 	}
 
-	@PostMapping(path="/cars", consumes="application/stream+json")
-	public Mono<Void> loadCars(@RequestBody Flux<Car> cars) {
-		return this.repository.insert(cars).then();
+	@PostMapping(path="/cars", consumes = "application/stream+json")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Flux<Car> loadCars(@RequestBody Flux<Car> cars) {
+		return this.repository.insert(cars);
 	}
 
 }

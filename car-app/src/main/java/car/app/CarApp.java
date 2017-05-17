@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package car.request;
+package car.app;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ServiceApp {
-
+public class CarApp {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ServiceApp.class, args);
+		SpringApplication.run(CarApp.class, args);
 	}
 
 }
