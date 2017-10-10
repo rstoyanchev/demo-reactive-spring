@@ -42,6 +42,13 @@ public class CarLocationController {
 		return this.repository.findAll().log();
 	}
 
+	@GetMapping(path = "/cars", produces = "application/stream+json")
+	public Flux<Car> getCarStream() {
+		return this.repository.findCarsBy().log();
+	}
+
+	// WebFlux only
+
 	@PostMapping(path="/cars", consumes = "application/stream+json")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Flux<Car> loadCars(@RequestBody Flux<Car> cars) {

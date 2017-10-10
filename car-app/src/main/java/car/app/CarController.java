@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,11 +34,28 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RestController
 public class CarController {
 
-	private Logger logger = LoggerFactory.getLogger(CarController.class);
+	private static final Logger logger = LoggerFactory.getLogger(CarController.class);
 
-	private WebClient carLocationClient = WebClient.create("http://localhost:8081");
 
-	private WebClient carRequestClient = WebClient.create("http://localhost:8082");
+	private final WebClient carLocationClient;
+
+	private final WebClient carRequestClient;
+
+
+	public CarController() {
+
+		ReactorClientHttpConnector connector = new ReactorClientHttpConnector();
+
+		carLocationClient = WebClient.builder()
+				.baseUrl("http://localhost:8081")
+				.clientConnector(connector)
+				.build();
+
+		carRequestClient = WebClient.builder()
+				.baseUrl("http://localhost:8082")
+				.clientConnector(connector)
+				.build();
+	}
 
 
 	@PostMapping("/booking")
@@ -62,6 +80,7 @@ public class CarController {
 		HttpStatus status = response.statusCode();
 		Assert.state(status.equals(HttpStatus.CREATED), "Booking failed: " + status);
 		URI location = response.headers().asHttpHeaders().getLocation();
+		Assert.notNull(location, "No location");
 		return ResponseEntity.created(location).build();
 	}
 
