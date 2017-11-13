@@ -21,22 +21,20 @@ import java.util.Random;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
-@RestController
-public class CarRequestController {
+
+@Component
+public class CarRequestHandler {
 
 	private static final Random random = new Random();
 
 
-	@PostMapping("/cars/{id}/booking")
-	public Mono<ResponseEntity<Void>> requestCar(@PathVariable Long id) {
-
+	public Mono<ServerResponse> createBooking(ServerRequest request) {
 		return Mono.delay(randomThinkTime())
-				.map(l -> ResponseEntity.created(bookingUrl(id)).build());
+				.then(ServerResponse.created(bookingUrl(request)).build());
 	}
 
 	/**
@@ -46,7 +44,8 @@ public class CarRequestController {
 		return Duration.ofSeconds(random.nextInt(5 - 2) + 2);
 	}
 
-	private static URI bookingUrl(Long id) {
+	private static URI bookingUrl(ServerRequest request) {
+		Long id = Long.valueOf(request.pathVariable("id"));
 		return URI.create("/car/" + id + "/booking/" + Math.abs(random.nextInt()));
 	}
 
