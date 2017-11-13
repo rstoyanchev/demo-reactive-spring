@@ -15,20 +15,15 @@
  */
 package car.app;
 
-import java.net.URI;
-
 import car.Car;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @RestController
@@ -61,27 +56,21 @@ public class CarController {
 	@PostMapping("/booking")
 	public Mono<ResponseEntity<Void>> book() {
 
+		logger.debug("Processing booking request..");
+
 		return carLocationClient.get()
 				.uri("/cars")
 				.retrieve()
 				.bodyToFlux(Car.class)
+				.doOnNext(car -> logger.debug("Requesting to book " + car))
 				.take(5)
-				.flatMap(car -> {
-					logger.debug("Requesting " + car);
-					return carRequestClient.post()
-							.uri("/cars/" + car.getId() + "/booking")
-							.exchange()
-							.map(this::toBookingResponseEntity);
-				})
-				.next();
-	}
-
-	private ResponseEntity<Void> toBookingResponseEntity(ClientResponse response) {
-		HttpStatus status = response.statusCode();
-		Assert.state(status.equals(HttpStatus.CREATED), "Booking failed: " + status);
-		URI location = response.headers().asHttpHeaders().getLocation();
-		Assert.notNull(location, "No location");
-		return ResponseEntity.created(location).build();
+				.flatMap(car ->
+						carRequestClient.post()
+								.uri("/cars/{id}/booking", car.getId())
+								.exchange()
+								.flatMap(response -> response.toEntity(Void.class)))
+				.next()
+				.doOnNext(car -> logger.debug("Booked car " + car));
 	}
 
 }
