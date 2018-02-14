@@ -18,6 +18,7 @@ package car.location;
 
 import car.Car;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,8 +52,8 @@ public class CarLocationController {
 
 	@PostMapping(path="/cars", consumes = "application/stream+json")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Flux<Car> loadCars(@RequestBody Flux<Car> cars) {
-		return this.repository.insert(cars);
+	public Mono<Void> loadCars(@RequestBody Flux<Car> cars) {
+		return this.repository.insert(cars).then();
 	}
 
 }
