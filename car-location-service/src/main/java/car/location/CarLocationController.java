@@ -21,11 +21,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 
 
 @RestController
@@ -33,10 +35,32 @@ public class CarLocationController {
 
 	private final CarRepository repository;
 
+	private final WebClient client = WebClient.create("http://localhost:8082");
+
 
 	public CarLocationController(CarRepository repository) {
 		this.repository = repository;
 	}
+
+
+
+	@GetMapping("/err")
+	public Mono<Void> handleRequest() {
+		return client.get().uri("/err2").retrieve().bodyToMono(Void.class);
+	}
+
+
+	@GetMapping("/err-err")
+	public Mono<Void> raiseErrorError() {
+		return Mono.defer(() -> Mono.error(new IllegalArgumentException("err1")));
+	}
+
+	@ExceptionHandler
+	public Mono<Void> handleException(IllegalArgumentException ex) {
+		return client.get().uri("/err2").retrieve().bodyToMono(Void.class);
+	}
+
+
 
 	@GetMapping("/cars")
 	public Flux<Car> getCars() {

@@ -15,13 +15,15 @@
  */
 package car.request;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 @SpringBootApplication
 public class RequestServiceApp {
@@ -33,7 +35,9 @@ public class RequestServiceApp {
 
 	@Bean
 	public RouterFunction<?> routes(CarRequestHandler handler) {
-		return RouterFunctions.route(POST("/cars/{id}/booking"), handler::createBooking);
+		return RouterFunctions
+				.route(POST("/cars/{id}/booking"), handler::createBooking)
+				.andRoute(GET("/err2"), request -> Mono.error(new IllegalStateException("err2")));
 	}
 
 }
