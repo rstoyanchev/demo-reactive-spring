@@ -45,7 +45,7 @@ public class CarRequestHandler {
 	}
 
 	private static URI bookingUrl(ServerRequest request) {
-		Long id = Long.valueOf(request.pathVariable("id"));
+		long id = Long.parseLong(request.pathVariable("id"));
 		return URI.create("/car/" + id + "/booking/" + Math.abs(random.nextInt()));
 	}
 
